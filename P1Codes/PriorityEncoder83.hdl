@@ -1,0 +1,83 @@
+// Priority Encoder
+// input is 8-bit long array
+// output is 3-bit long array
+// Name: Jasmine Leu
+
+CHIP PriorityEncoder83 {
+	IN a[8];
+	OUT out[3], idle;
+
+	PARTS:
+	//Your code starts here
+
+
+	// nots
+	Not(in=a[0], out=nota0);
+	Not(in=a[1], out=nota1);
+	Not(in=a[2], out=nota2);
+	Not(in=a[3], out=nota3);
+	Not(in=a[4], out=nota4);
+	Not(in=a[5], out=nota5);
+	Not(in=a[6], out=nota6);
+	Not(in=a[7], out=nota7);
+
+	// idle
+	And(a=nota0, b=nota1, out=b1);
+	And(a=nota2, b=nota3, out=b2);
+	And(a=nota4, b=nota5, out=b3);
+	And(a=nota6, b=nota7, out=b4);
+	And(a=b1, b=b2, out=b5);
+	And(a=b3, b=b4, out=b6);
+	And(a=b5, b=b6, out=idle);
+
+
+
+	// out[2]
+	And(a=nota7, b=nota6, out=x1);
+	And(a=nota5, b=a[4], out=x2);
+	And(a=x1, b=x2, out=x3); // 7'6'5'4
+
+	And(a=x1, b=a[5], out=x4); // 7'6'5
+
+	And(a=nota7, b=a[6], out=x5); // 7'6
+
+	Or(a=x3, b=x4, out=x6);
+	Or(a=x5, b=a[7], out=x7);
+	Or(a=x6, b=x7, out=out[2]); // 7'6'5'4 + 7'6'5 + 7'6 + 7
+
+
+
+	// out[1]
+	And(a=nota7, b=nota6, out=y1);
+	And(a=nota5, b=nota4, out=y2);
+	And(a=nota3, b=a[2], out=y3);
+	And(a=y1, b=y2, out=y4); // (7'6'5'4')
+	And(a=y4, b=y3, out=y5); // 7'6'5'4'3'2
+
+	And(a=y4, b=a[3], out=y6); // 7'6'5'4'3
+
+	And(a=nota7, b=a[6], out=y7); // 7'6
+
+	Or(a=y5, b=y6, out=y8); // 7'6'5'4'3'2 + 7'6'5'4'3
+	Or(a=y7, b=a[7], out=y9); // 7'6 + 7
+	Or(a=y8, b=y9, out=out[1]); // 7'6'5'4'3'2 = 7'6'5'4'3 + 7'6 + 7
+
+
+
+	// out[0]
+	And(a=nota7, b=nota6, out=z1);
+	And(a=nota5, b=nota4, out=z2);
+	And(a=nota3, b=nota2, out=z3);
+	And(a=z1, b=z2, out=z4); // 7'6'5'4'
+	And(a=z3, b=a[1], out=z5); // 3'2'1
+	And(a=z4, b=z5, out=z6); // 7'6'5'4'3'2'1
+
+	And(a=z4, b=a[3], out=z7); // 7'6'5'4'3
+
+	And(a=z1, b=a[5], out=z8); // 7'6'5
+
+	Or(a=z6, b=z7, out=z9);
+	Or(a=z8, b=a[7], out=z10);
+	Or(a=z9, b=z10, out=out[0]); // 7'6'5'4'3'2'1 + 7'6'5'4'3 + 7'6'5 + 7
+
+}
